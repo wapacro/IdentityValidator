@@ -1,0 +1,21 @@
+{
+    "name": "wapacro/identity-validator",
+    "description": "Allows you to check identity cards and passports all over the world!",
+    "license": "BSD-2-Clause",
+    "authors": [
+        {
+            "name": "Roman Ackermann",
+            "email": "roman@waprogramms.com"
+        }
+    ],
+    "require": {
+        "php": ">=7.0",
+        "airmanbzh/php-html-generator": "^1.0",
+        "phpunit/php-text-template": "^1.2"
+    },
+    "autoload": {
+        "psr-4": {
+            "wapacro\\IdentityValidator\\": "src"
+        }
+    }
+}
