@@ -9,9 +9,7 @@
         }
     ],
     "require": {
-        "php": ">=7.0",
-        "airmanbzh/php-html-generator": "^1.0",
-        "phpunit/php-text-template": "^1.2"
+        "php": ">=7.0"
     },
     "autoload": {
         "psr-4": {
