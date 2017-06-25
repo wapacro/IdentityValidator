@@ -27,6 +27,9 @@ class IdentityValidator {
     /** @var SimpleXMLElement $generatedXml */
     private $generatedXml = null;
 
+    /** @var string $failReason */
+    private $failReason = '';
+
     /**
      * IdentityValidator constructor
      * @param string|null $template
@@ -62,11 +65,41 @@ class IdentityValidator {
         $documentStructure = $this->generatedXml->children();
 
         foreach ($documentStructure as $structure) {
-            if (isset($structure['HasChecksum']) && isset($structure['Id'])) {
-                $checksum = $this->getChecksumById($structure['Id'], $documentStructure);
-                if (is_null($checksum) || !$this->checkChecksum($structure, $checksum)) {
-                    return false;
-                }
+            switch($structure->getName()) {
+                case 'Country':
+                    switch($structure['Type']) {
+                        case 'Code':
+                            $validValue = (string)$this->loadedTemplateXml->Meta->Country['Code'];
+                            break;
+                        case 'International':
+                            $validValue = (string)$this->loadedTemplateXml->Meta->Country['International'];
+                            break;
+                        default:
+                            $validValue = '';
+                            break;
+                    }
+
+                    if ($validValue !== (string)$structure) {
+                        $this->failReason = 'Country mismatch: Expected <' . $structure . '> to be <' . $validValue . '>';
+                        return false;
+                    }
+                break;
+                case 'Type':
+                    if ((string)$structure !== (string)$this->loadedTemplateXml->Meta->Type['Code']) {
+                        $this->failReason = 'Type mismatch: Expected <' . $structure . '> to be <' . $this->loadedTemplateXml->Meta->Type['Code'] . '>';
+                        return false;
+                    }
+                break;
+                default:
+                    if (isset($structure['HasChecksum']) && isset($structure['Id'])) {
+                        $checksum = $this->getChecksumById($structure['Id'], $documentStructure);
+
+                        if (is_null($checksum) || !$this->checkChecksum($structure, $checksum)) {
+                            $this->failReason = 'Checksum mismatch: Expected <' . $structure . '>\'s checksum to be <' . $checksum . '>';
+                            return false;
+                        }
+                    }
+                break;
             }
         }
 
@@ -126,7 +159,7 @@ class IdentityValidator {
             if ($structure->getName() !== 'Separator') {
                 $node = $this->generatedXml->addChild($structure->getName(), $structure);
                 foreach ($structure->attributes() as $name => $value) {
-                    if ($name !== 'Length' && $name !== 'Count' && $name !== 'HasChecksum') {
+                    if ($name !== 'Length' && $name !== 'Count') {
                         $node->addAttribute($name, $value);
                     }
                 }
@@ -184,7 +217,6 @@ class IdentityValidator {
         }
 
         $last_number = substr(strval($sum), -1);
-
         return $last_number == $checknumber;
     }
 
@@ -224,6 +256,16 @@ class IdentityValidator {
         }
 
         return $supportedList;
+    }
+
+    /**
+     * Returns the last reason for
+     * declaring machine readable
+     * lines as invalid
+     * @return string
+     */
+    public function getFailReason() {
+        return $this->failReason;
     }
 
     /**
@@ -287,7 +329,7 @@ class IdentityValidator {
             '<br />'
         ];
 
-        return str_ireplace($linebreaks, '|', $input);
+        return strtoupper(str_ireplace($linebreaks, '|', $input));
     }
 
     /**
