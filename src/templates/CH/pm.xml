@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!--
+  ~ Copyright (C) 2017 by WAProgramms Software Group, Roman Ackermann. All rights reserved.
+  -->
+
+<IdentityValidatorTemplate>
+    <Meta>
+        <Type Code="PM">Passport</Type>
+        <Country Code="CHE" International="Switzerland">Schweiz</Country>
+        <Separator>&lt;</Separator>
+        <LineLength>30</LineLength>
+    </Meta>
+    <Structure>
+        <Type Length="2" />
+        <Country Type="Code" Length="3" />
+        <Name Type="Lastname" Length="*" />
+        <Separator Count="2" />
+        <Name Type="Firstname" Length="*" />
+        <Separator Count="*" />
+        <LineBreak />
+        <CardNumber Length="8" HasChecksum="true" Id="chksm_1" />
+        <Separator Count="1" />
+        <Checksum For="chksm_1" Length="1" />
+        <Country Type="Code" Length="3" />
+        <Date Type="Birthday" Format="yymmdd" Length="6" HasChecksum="true" Id="chksm_2" />
+        <Checksum For="chksm_2" Length="1" />
+        <Gender Length="1" />
+        <Date Type="Expires" Format="yymmdd" Length="6" HasChecksum="true" Id="chksm_3" />
+        <Checksum For="chksm_3" Length="1" />
+        <Separator Count="15" />
+        <Checksum For="all" Length="1" />
+    </Structure>
+</IdentityValidatorTemplate>
